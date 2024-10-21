@@ -5,6 +5,7 @@ let playerX = canvasSize/2;
 let playerY = canvasSize - 55;
 let playerXSpeed = 0;
 let playerYSpeed = 0;
+let playerMoveSpeed = 1.5;
 let playerDirection = 4;
 let playerRotation = 90;
 
@@ -36,21 +37,21 @@ function draw(){
         case 0:
             //Forward
             playerXSpeed = 0;
-            playerYSpeed = -1;
+            playerYSpeed = -1 * playerMoveSpeed;
             break;
         case 1:
             //Right
-            playerXSpeed = 1;
+            playerXSpeed = 1 * playerMoveSpeed;
             playerYSpeed = 0;
             break;
         case  2:
             //Down
             playerXSpeed = 0;
-            playerYSpeed = 1;
+            playerYSpeed = 1 * playerMoveSpeed;
             break;
         case 3:
             //Left
-            playerXSpeed = -1;
+            playerXSpeed = -1 * playerMoveSpeed;
             playerYSpeed = 0;
             break;
         case 4:
