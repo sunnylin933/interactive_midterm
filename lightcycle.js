@@ -179,7 +179,7 @@ function draw() {
 
         //Player1 Collision Detection
         let p1DetectedColor = red(buffer.get(player1X + p1XOffset, player1Y + p1YOffset));
-        ellipse(player1X + p1XOffset, player1Y + p1YOffset, 10);
+        //ellipse(player1X + p1XOffset, player1Y + p1YOffset, 10);
         if (p1DetectedColor != 0) {
             endLevel(1);
         }
@@ -190,7 +190,7 @@ function draw() {
 
         //Player2 Collision Detection
         let p2DetectedColor = blue(buffer.get(player2X + p2XOffset, player2Y + p2YOffset));
-        ellipse(player2X + p2XOffset, player2Y + p2YOffset, 10);
+        //ellipse(player2X + p2XOffset, player2Y + p2YOffset, 10);
         if (p2DetectedColor != 0) {
             endLevel(2);
         }
