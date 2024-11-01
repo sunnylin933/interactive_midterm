@@ -1,60 +1,89 @@
-let artHitMap;
+let artHitMap, artBackground;
 let tank1, tank2;
 let alive = true;
+let pause = false;
+let winner = "";
+let fBase;
+
 
 function preload() {
     artHitMap = loadImage('images/hitmap.png');
+    artBackground = loadImage('images/tankGraphic.png');
+    fBase = loadFont('fonts/base.ttf');
 }
 
 function setup() {
     createCanvas(500, 500);
     rectMode(CENTER);
+    textFont(fBase);
 
     // Resize artHitMap to match the canvas size
     artHitMap.resize(width, height);
+    artBackground.resize(width, height);
 
     // Create two tanks with specific key mappings
-    tank1 = new Tank(250, 250, 87, 65, 68, 83, 16); // W, A, D, S, SHIFT for tank1 fire
-    tank2 = new Tank(100, 100, 73, 74, 76, 75, 13); // I, J, L, K, ENTER for tank2 fire
+    tank1 = new Tank(465, 250, 4.7, 87, 65, 68, 83, 16); // W, A, D, S, SHIFT for tank1 fire
+    tank2 = new Tank(35, 250, 4.7, 73, 74, 76, 75, 13); // I, J, L, K, ENTER for tank2 fire
 }
 
 function draw() {
-    image(artHitMap, 0, 0, width, height);
-    if (alive == true){
+    image(artBackground, 0, 0, width, height);
+
+    if (alive) {
         gamePlay();
+    } 
+
+    // Display the winner message if there is a winner
+    if (winner !== "") {
+        displayWinnerMessage(winner);
     }
-    else{
-        eliminated();
-    }
-    
+}
+
+function pauseGame() {
+    pause = true;
+}
+
+function resetGame() {
+    tank1.position.set(465, 250);
+    tank2.position.set(35, 250);
+    alive = true;
+    pause = false;
+    winner = ""; // Reset winner message
+}
+
+function eliminated1() {
+    pauseGame();
+    winner = "Player 2 Wins!";
+}
+
+function eliminated2() {
+    pauseGame();
+    winner = "Player 1 Wins!";
 }
 
 function gamePlay() {
-    // Update and display each tank
-    tank1.update();
-    tank1.display();
-    tank2.update();
-    tank2.display();
+    if (!pause) {
+        tank1.update();
+        tank1.display();
+        tank2.update();
+        tank2.display();
 
-    // Check if any missiles from tank1 collide with tank2
-    if (checkMissileTankCollision(tank1.missiles, tank2)) {
-        alive = false;
-        console.log("Tank 2 hit!");
-    }
-
-    // Check if any missiles from tank2 collide with tank1
-    if (checkMissileTankCollision(tank2.missiles, tank1)) {
-        alive = false;
-        console.log("Tank 1 hit!");
+        // Check for missile collisions
+        if (checkMissileTankCollision(tank1.missiles, tank2)) {
+            alive = false;
+            eliminated1();
+        }
+        if (checkMissileTankCollision(tank2.missiles, tank1)) {
+            alive = false;
+            eliminated2();
+        }
     }
 }
 
-// Function to check if any missiles from a specific tank collide with another tank
 function checkMissileTankCollision(missiles, tank) {
     for (let missile of missiles) {
         let distance = dist(missile.position.x, missile.position.y, tank.position.x, tank.position.y);
         let collisionDistance = (missile.size + 20) / 2;
-
         if (distance < collisionDistance) {
             return true;
         }
@@ -62,18 +91,24 @@ function checkMissileTankCollision(missiles, tank) {
     return false;
 }
 
-function eliminated(){
-    background (0);
-    fill(255);
-    textSize(20);
-    textAlign(CENTER, CENTER);
-    text("Bring players back to overworld", width/2, height/2)
+// Display the winner message at the top of the screen
+function displayWinnerMessage(message) {
+    background(50, 50, 50, 150);
+
+    // Display the winner message
+    textSize(50);
+    textAlign(CENTER);
+    fill(255, 215, 0);
+    noStroke();       
+    text(message, width / 2, height / 2);
 }
 
+
+
 class Tank {
-    constructor(x, y, upKey, leftKey, rightKey, downKey, fireKey) {
+    constructor(x, y, angle, upKey, leftKey, rightKey, downKey, fireKey) {
         this.position = createVector(x, y);
-        this.angle = 0;
+        this.angle = angle;
         this.sensorDistance = 20;
         this.keys = { up: upKey, left: leftKey, right: rightKey, down: downKey, fire: fireKey };
         this.missiles = [];
@@ -116,20 +151,18 @@ class Tank {
             }
         }
 
-        this.counter+=1;
+        this.counter += 1;
     }
 
     moveForward() {
         let sensorPosition = p5.Vector.fromAngle(this.angle).mult(this.sensorDistance).add(this.position);
         
-        // Check collision with resized artHitMap
         let hitmapX = int(sensorPosition.x);
         let hitmapY = int(sensorPosition.y);
         
         if (hitmapX >= 0 && hitmapX < artHitMap.width && hitmapY >= 0 && hitmapY < artHitMap.height) {
             let sensorColor = artHitMap.get(hitmapX, hitmapY); 
 
-            // Check for white color (255, 255, 255) for movement
             if (red(sensorColor) > 200 && green(sensorColor) > 200 && blue(sensorColor) > 200) {
                 let direction = p5.Vector.fromAngle(this.angle).mult(2);
                 this.position.add(direction);
@@ -140,14 +173,12 @@ class Tank {
     moveBackward() {
         let reverseSensorPosition = p5.Vector.fromAngle(this.angle + PI).mult(this.sensorDistance).add(this.position);
         
-        // Check collision with resized artHitMap
         let hitmapX = int(reverseSensorPosition.x);
         let hitmapY = int(reverseSensorPosition.y);
         
         if (hitmapX >= 0 && hitmapX < artHitMap.width && hitmapY >= 0 && hitmapY < artHitMap.height) {
             let sensorColor = artHitMap.get(hitmapX, hitmapY);
 
-            // Check for white color (255, 255, 255) for movement
             if (red(sensorColor) > 200 && green(sensorColor) > 200 && blue(sensorColor) > 200) {
                 let direction = p5.Vector.fromAngle(this.angle + PI).mult(2);
                 this.position.add(direction);
@@ -156,12 +187,10 @@ class Tank {
     }
 
     fireMissile() {
-        // Fire a new missile and add it to the missiles array
-        if (this.counter > this.coolDown){
+        if (this.counter > this.coolDown) {
             this.missiles.push(new Missile(this.position.copy(), this.angle));
             this.counter = 0;
         }
-        
     }
 
     display() {
@@ -169,15 +198,14 @@ class Tank {
         translate(this.position.x, this.position.y);
         rotate(this.angle);
         fill(255);
-        rect(0, 0, 20, 20); // Tank size
+        rect(0, 0, 20, 20);
         translate(this.sensorDistance, 0);
         fill(0, 255, 0);
-        rect(0, 0, 10, 10); // Sensor representation
+        rect(0, 0, 10, 10);
         pop();
     }
 }
 
-// Missile class definition
 class Missile {
     constructor(position, angle) {
         this.position = position;
@@ -192,14 +220,12 @@ class Missile {
         
         let hasBounced = false;
 
-        // Check X-axis boundary (horizontal reflection)
         if (!hasBounced && this.isColliding(nextPositionX, this.position.y)) {
             this.velocity.x *= -1;
             hasBounced = true;
             this.bounces++;
         }
 
-        // Check Y-axis boundary (vertical reflection)
         if (!hasBounced && this.isColliding(this.position.x, nextPositionY)) {
             this.velocity.y *= -1;
             hasBounced = true;
@@ -209,7 +235,6 @@ class Missile {
         this.position.add(this.velocity);
     }
 
-    // Check if position collides with black (barrier) on the hitmap
     isColliding(x, y) {
         let hitmapX = int(x);
         let hitmapY = int(y);
@@ -228,7 +253,6 @@ class Missile {
         pop();
     }
 
-    // Check if missile should be removed after 4 bounces
     shouldRemove() {
         return this.bounces >= 4;
     }
