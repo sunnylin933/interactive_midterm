@@ -54,8 +54,10 @@ function togglePause() {
 }
 
 function resetGame() {
-    tank1.position.set(465, 250);
-    tank2.position.set(35, 250);
+    tank1.position.set(35, 250);
+    tank2.position.set(465, 250);
+    tank1.angle = -PI/2
+    tank2.angle = -PI/2
     alive = true;
     pause = false;
     winner = ""; // Reset winner message
@@ -139,6 +141,10 @@ function keyPressed(){
             ready2 = true;
         }
     }
+    if (key == 'p'){
+        resetGame();
+    }
+    
 }
 
 function checkMissileTankCollision(missiles, tank) {
