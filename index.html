@@ -5,12 +5,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.10.0/p5.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Goldman:wght@400;700&family=Michroma&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Goldman:wght@400;700&family=Orbitron:wght@400..900&display=swap"
     rel="stylesheet">
   <style>
-    html, body{
-      margin:0px;
-      padding:0px;
+    html,
+    body {
+      margin: 0px;
+      padding: 0px;
     }
 
     body {
@@ -18,60 +19,144 @@
       color: white;
     }
 
+    hr{
+      width:70%;
+    }
+
     #title {
       font-family: "Goldman", sans-serif;
-      font-weight:400;
+      font-size: 62px;
+      font-weight: 700;
       text-align: center;
+      margin: 25px 0px 0px 0px;
     }
-    
-    #gameContainer{
-      display:flex;
+
+    #subtitle {
+      font-family: "Orbitron", sans-serif;
+      font-size: 22px;
+      font-weight: 100;
+      text-align: center;
+      margin: 0px 0px 30px 0px;
+    }
+
+    #gameContainer {
+      display: flex;
       justify-content: center;
       align-items: center;
     }
 
-    .squareCanvas{
-      margin:auto;
-      width:100%;
-      height:500px;
+    #instructionContainer {
+      margin-top: 25px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: "Orbitron", sans-serif;
+      font-size: 15px;
+      font-weight: 100;
     }
 
-    .hidden{
-      display:none;
+    #hudContainer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #hudCanvas {
+      width:505px;
+      height:75px;
+    }
+
+    .squareCanvas {
+      width: 505px;
+      height: 505px;
+    }
+
+    .hidden {
+      display: none;
     }
   </style>
 </head>
 
 <body>
-  <h1 id="title">Tron Arcade</h1>
-  <button id="cycleButton">Lightcycle Minigame</button>
-  <button id="tankButton">Tank Minigame</button>
-  <div id="gameContainer">
-    <iframe class="squareCanvas hidden" id="cycleCanvas" src="lightcycle.html" scrolling="no" frameBorder="0"></iframe>
-    <iframe class="squareCanvas hidden" id="tankCanvas" src="tanks.html" scrolling="no" frameBorder="0"></iframe>
+  <h1 id="title">Tron</h1>
+  <h2 id="subtitle">The Arcade Game</h2>
+  <hr>
+  <div style="display:flex; justify-content: center; align-items: center; margin:20px 0px;gap:10px;">
+    <button id="lobbyButton">Lobby</button>
+    <button id="cycleButton">Lightcycle Minigame</button>
+    <button id="tankButton">Tank Minigame</button>
   </div>
+  <div id="hudContainer">
+    <div id="hudHolder">
+      <iframe id="hudCanvas" src="hud.html" scrolling="no" frameBorder="0"></iframe>
+    </div>
+  </div>
+  <div id="gameContainer">
+    <div id="lobbyContainer">
+      <iframe class="squareCanvas" id="lobbyCanvas" src="lobby.html" scrolling="no" frameBorder="0"></iframe>
+    </div>
+    <div id="cycleContainer" class="hidden">
+      <iframe class="squareCanvas" id="cycleCanvas" src="lightcycle.html" scrolling="no" frameBorder="0"></iframe>
+    </div>
+    <div id='tankContainer' class="hidden">
+      <iframe class="squareCanvas" id="tankCanvas" src="tanks.html" scrolling="no" frameBorder="0"></iframe>
+    </div>
+  </div>
+  <div id="instructionContainer">Select from any minigame.</div>
 
   <script>
     let cycleButton = document.getElementById('cycleButton');
     let tankButton = document.getElementById('tankButton');
-    let cycle = document.getElementById('cycleCanvas');
-    let tank = document.getElementById('tankCanvas');
-    let minigames = [cycle, tank];
-    
-    cycleButton.onclick = function(){
-      for(let i = 0; i < minigames.length; i++){
-        minigames[i].classList.add('hidden');
-      }
-      cycle.classList.remove('hidden');
+    let lobbyButton = document.getElementById('lobbyButton');
+    let cycle = document.getElementById('cycleContainer');
+    let tank = document.getElementById('tankContainer');
+    let lobby = document.getElementById('lobbyContainer');
+    let minigames = [cycle, tank, lobby];
+
+    //TEMPORARY FUNCTIONS
+    lobbyButton.onclick = function () {
+      enableMinigame(0);
     }
 
-    tankButton.onclick = function(){
-      for(let i = 0; i < minigames.length; i++){
-        minigames[i].classList.add('hidden');
-      }
-      tank.classList.remove('hidden');
+    cycleButton.onclick = function () {
+      enableMinigame(1);
     }
 
+    tankButton.onclick = function () {
+      enableMinigame(2);
+    }
+
+    function enableMinigame(minigameNumber) {
+      switch (minigameNumber) {
+        case 0:
+          //0 - Lobby
+          for (let i = 0; i < minigames.length; i++) {
+            minigames[i].classList.add('hidden');
+          }
+          lobby.classList.remove('hidden');
+          break;
+        case 1:
+          //1 - Lightcycle
+          for (let i = 0; i < minigames.length; i++) {
+            minigames[i].classList.add('hidden');
+          }
+          cycle.classList.remove('hidden');
+          break;
+        case 2:
+          //2 - Tank
+          for (let i = 0; i < minigames.length; i++) {
+            minigames[i].classList.add('hidden');
+          }
+          tank.classList.remove('hidden');
+          break;
+        case 3:
+          //3 - Cone
+
+          break;
+      }
+
+    }
   </script>
 </body>
 
