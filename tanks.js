@@ -1,33 +1,38 @@
-let artHitMap, artBackground;
+let artHitMap, artBackground, tankImg1, tankImg2, laserSound, explosion;
 let tank1, tank2;
 let alive = true;
 let pause = false;
 let winner = "";
 let fBase;
 
-
 function preload() {
     artHitMap = loadImage('images/hitmap.png');
     artBackground = loadImage('images/tankGraphic.png');
+    tankImg1 = loadImage('images/tank_char_1.png');
+    tankImg2 = loadImage('images/tank_char_2.png');
     fBase = loadFont('fonts/base.ttf');
+    
+    laserSound = loadSound('images/laser.mp3')
+    explosion = loadSound('images/explosion.mp3')
 }
-
 function setup() {
     createCanvas(500, 500);
     rectMode(CENTER);
     textFont(fBase);
+    imageMode(CENTER);
 
-    // Resize artHitMap to match the canvas size
+    // Resize images to match canvas size
     artHitMap.resize(width, height);
     artBackground.resize(width, height);
+    tankImg1.resize(40, 40);
+    tankImg2.resize(40, 40);
 
-    // Create two tanks with specific key mappings
-    tank1 = new Tank(465, 250, 4.7, 87, 65, 68, 83, 16); // W, A, D, S, SHIFT for tank1 fire
-    tank2 = new Tank(35, 250, 4.7, 73, 74, 76, 75, 13); // I, J, L, K, ENTER for tank2 fire
+    tank1 = new Tank(465, 250, 4.7, 87, 65, 68, 83, 16, tankImg1, color(255, 0, 0));
+    tank2 = new Tank(35, 250, 4.7, 73, 74, 76, 75, 13, tankImg2, color(0, 255, 0));
 }
 
 function draw() {
-    image(artBackground, 0, 0, width, height);
+    image(artBackground, width/2, height/2, width, height);
 
     if (alive) {
         gamePlay();
@@ -53,12 +58,12 @@ function resetGame() {
 
 function eliminated1() {
     pauseGame();
-    winner = "Player 2 Wins!";
+    winner = "Player 1 Wins!";
 }
 
 function eliminated2() {
     pauseGame();
-    winner = "Player 1 Wins!";
+    winner = "Player 2 Wins!";
 }
 
 function gamePlay() {
@@ -85,6 +90,7 @@ function checkMissileTankCollision(missiles, tank) {
         let distance = dist(missile.position.x, missile.position.y, tank.position.x, tank.position.y);
         let collisionDistance = (missile.size + 20) / 2;
         if (distance < collisionDistance) {
+            explosion.play()
             return true;
         }
     }
@@ -103,10 +109,8 @@ function displayWinnerMessage(message) {
     text(message, width / 2, height / 2);
 }
 
-
-
 class Tank {
-    constructor(x, y, angle, upKey, leftKey, rightKey, downKey, fireKey) {
+    constructor(x, y, angle, upKey, leftKey, rightKey, downKey, fireKey, tankImg, color) {
         this.position = createVector(x, y);
         this.angle = angle;
         this.sensorDistance = 20;
@@ -115,6 +119,9 @@ class Tank {
 
         this.coolDown = 20;
         this.counter = 0;
+
+        this.tankImg = tankImg
+        this.color = color
     }
 
     update() {
@@ -148,6 +155,7 @@ class Tank {
             // Remove missile if it has bounced 4 times
             if (missile.shouldRemove()) {
                 this.missiles.splice(i, 1);
+                explosion.play()
             }
         }
 
@@ -188,8 +196,9 @@ class Tank {
 
     fireMissile() {
         if (this.counter > this.coolDown) {
-            this.missiles.push(new Missile(this.position.copy(), this.angle));
+            this.missiles.push(new Missile(this.position.copy(), this.angle, this.color));
             this.counter = 0;
+            laserSound.play()
         }
     }
 
@@ -198,20 +207,19 @@ class Tank {
         translate(this.position.x, this.position.y);
         rotate(this.angle);
         fill(255);
-        rect(0, 0, 20, 20);
+        image(this.tankImg, 0, 0);
         translate(this.sensorDistance, 0);
-        fill(0, 255, 0);
-        rect(0, 0, 10, 10);
         pop();
     }
 }
 
 class Missile {
-    constructor(position, angle) {
+    constructor(position, angle, color) {
         this.position = position;
         this.velocity = p5.Vector.fromAngle(angle).mult(5);
-        this.size = 5;
+        this.size = 10;
         this.bounces = 0;
+        this.color = color;
     }
 
     update() {
@@ -248,7 +256,7 @@ class Missile {
 
     display() {
         push();
-        fill(255, 0, 0);
+        fill(this.color);
         ellipse(this.position.x, this.position.y, this.size);
         pop();
     }
