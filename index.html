@@ -103,6 +103,9 @@
     <div id='tankContainer' class="hidden">
       <iframe class="squareCanvas" id="tankCanvas" src="tanks.html" scrolling="no" frameBorder="0"></iframe>
     </div>
+    <div id='coneContainer' class="hidden">
+      <iframe class="squareCanvas" id="coneCanvas" src="Cones.html" scrolling="no" frameBorder="0"></iframe>
+    </div>
   </div>
   <div id="instructionContainer">
     <div>WASD to move. <br> Select a minigame.</div>
@@ -116,8 +119,11 @@
     let cycle = document.getElementById('cycleContainer');
     let tank = document.getElementById('tankContainer');
     let lobby = document.getElementById('lobbyContainer');
+    let cone = document.getElementById('coneContainer');
     let cycleGame = document.getElementById('cycleCanvas');
+    let tankGame = document.getElementById('tankCanvas');
     let lobbyGame = document.getElementById('lobbyCanvas');
+    let coneGame = document.getElementById('coneCanvas');
     let minigames = [cycle, tank, lobby];
 
     function enableMinigame(minigameNumber) {
@@ -138,7 +144,10 @@
           break;
         case 2:
           //3 - Cone
-
+          for (let i = 0; i < minigames.length; i++) {
+            minigames[i].classList.add('hidden');
+          }
+          cone.classList.remove('hidden');
           break;
       }
     }
@@ -164,6 +173,7 @@
           
           //Reset Games
           cycleGame.contentWindow.resetGame();
+          tankGame.contentWindow.resetGame();
       },2000);
     }
   </script>

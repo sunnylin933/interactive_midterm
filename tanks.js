@@ -54,6 +54,7 @@ function togglePause() {
 }
 
 function resetGame() {
+    console.log('Resetting Game');
     tank1.position.set(35, 250);
     tank2.position.set(465, 250);
     tank1.angle = -PI/2
@@ -68,11 +69,13 @@ function resetGame() {
 
 function eliminated1() {
     togglePause();
+    window.parent.endGame(2);
     winner = "Player 1 Wins!";
 }
 
 function eliminated2() {
     togglePause();
+    window.parent.endGame(1);
     winner = "Player 2 Wins!";
 }
 
@@ -119,13 +122,15 @@ function gamePlay() {
         tank2.display();
 
         // Check for missile collisions
-        if (checkMissileTankCollision(tank1.missiles, tank2)) {
-            alive = false;
-            eliminated1();
-        }
-        if (checkMissileTankCollision(tank2.missiles, tank1)) {
-            alive = false;
-            eliminated2();
+        if(alive){
+            if (checkMissileTankCollision(tank1.missiles, tank2)) {
+                alive = false;
+                eliminated1();
+            }
+            if (checkMissileTankCollision(tank2.missiles, tank1)) {
+                alive = false;
+                eliminated2();
+            }
         }
     }
 }
@@ -153,6 +158,7 @@ function checkMissileTankCollision(missiles, tank) {
         let collisionDistance = (missile.size + 20) / 2;
         if (distance < collisionDistance) {
             explosion.play()
+            missiles.splice(missiles.indexOf(this),1);
             return true;
         }
     }
