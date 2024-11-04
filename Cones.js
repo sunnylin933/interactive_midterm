@@ -1,6 +1,7 @@
 let player;
 let segments = [];
 let bullets = [];
+let explosions = [];
 let segmentWidth = 20;
 let segmentSpeed = 0.5;
 let fallingAreaWidth = 200;
@@ -23,14 +24,11 @@ let isTurnOver;
 let winner;
 let playerImg;
 
-a
 function setup() {
   createCanvas(500, 500);
-  playerImg = loadImage('images/ConesImage.png'); 
-  resetGame(); 
+  playerImg = loadImage('images/ConesImage.png'); // Replace with the actual path
+  resetGame();
 }
-
-
 
 function resetGame() {
   player1Lives = 1;
@@ -46,6 +44,7 @@ function resetGame() {
   frameCounter = 0;
   segments = [];
   bullets = [];
+  explosions = [];
   setupPlayer();
   spawnSegments();
   spawnCone();
@@ -80,6 +79,7 @@ function draw() {
     isGameActive = true;
     handleSegments();
     handleBullets();
+    handleExplosions();
     drawPlayer();
     handlePlayerMovement();
     checkCollisions();
@@ -92,7 +92,7 @@ function draw() {
         player2Score++;
       }
       isTurnOver = true;
-      startDelay = 180; // Reset delay for the end of turn
+      startDelay = 180;
     }
 
     frameCounter++;
@@ -166,9 +166,6 @@ function handleBullets() {
 
     if (bullet.x <= leftBoundary || bullet.x >= rightBoundary) {
       bullet.vx *= -1;
-    }
-    if (bullet.y <= 0 || bullet.y >= height) {
-      bullet.vy *= -1;
     }
 
     fill(255, 0, 255);
@@ -247,7 +244,6 @@ function drawPlayer() {
   image(playerImg, player.x, player.y, player.size * 2, player.size * 2);
 }
 
-
 function handlePlayerMovement() {
   if (keyIsDown(65)) {
     player.x -= player.speed;
@@ -279,20 +275,28 @@ function mousePressed() {
 }
 
 function checkCollisions() {
-  for (let segment of segments) {
+  // Check for player collision with each segment
+  for (let i = segments.length - 1; i >= 0; i--) {
+    let segment = segments[i];
     if (
-      player.x > segment.x &&
-      player.x < segment.x + segment.width &&
-      player.y > segment.y &&
-      player.y < segment.y + segment.height
+      player.x + player.size / 2 > segment.x &&
+      player.x - player.size / 2 < segment.x + segment.width &&
+      player.y + player.size / 2 > segment.y &&
+      player.y - player.size / 2 < segment.y + segment.height
     ) {
-      if (activePlayer === 1) player1Lives--; else player2Lives--;
+      // If player collides with a segment, they lose a life and the turn ends
+      if (activePlayer === 1) {
+        player1Lives--;
+      } else {
+        player2Lives--;
+      }
       isTurnOver = true;
       startDelay = 180;
-      return;
+      return; // Exit immediately to prevent further actions in this frame
     }
   }
 
+  // Check if the player reached the cone area successfully
   if (
     player.x > cone.x - cone.width / 2 &&
     player.x < cone.x + cone.width / 2 &&
@@ -302,6 +306,7 @@ function checkCollisions() {
     gameWon = true;
   }
 
+  // Check bullet collisions with segments
   for (let i = segments.length - 1; i >= 0; i--) {
     let segment = segments[i];
     for (let j = bullets.length - 1; j >= 0; j--) {
@@ -310,6 +315,7 @@ function checkCollisions() {
     }
   }
 }
+
 
 function checkBulletCollisions(bullet) {
   for (let i = segments.length - 1; i >= 0; i--) {
@@ -322,8 +328,44 @@ function checkBulletCollisions(bullet) {
     ) {
       segment.height -= explosionAmount;
       if (segment.height <= 0) segments.splice(i, 1);
+      
+      // Spawn explosion effect
+      createExplosion(bullet.x, bullet.y);
+
       bullets.splice(bullets.indexOf(bullet), 1);
       return;
+    }
+  }
+}
+
+// Function to create explosion effect
+function createExplosion(x, y) {
+  for (let i = 0; i < 10; i++) {
+    explosions.push({
+      x: x,
+      y: y,
+      vx: random(-2, 2),
+      vy: random(-2, 2),
+      alpha: 255
+    });
+  }
+}
+
+// Function to handle explosions
+function handleExplosions() {
+  for (let i = explosions.length - 1; i >= 0; i--) {
+    let explosion = explosions[i];
+    fill(255, explosion.alpha, 0, explosion.alpha);
+    noStroke();
+    ellipse(explosion.x, explosion.y, 5, 5);
+    
+    // Update position and fade out
+    explosion.x += explosion.vx;
+    explosion.y += explosion.vy;
+    explosion.alpha -= 10;
+    
+    if (explosion.alpha <= 0) {
+      explosions.splice(i, 1);
     }
   }
 }
@@ -343,8 +385,6 @@ function displayScoresAndLives() {
   textAlign(RIGHT);
   text(`Turn: Player ${activePlayer}`, width - 10, 20);
 }
-
-
 function endTurn() {
   gameWon = false;
   segments = [];
