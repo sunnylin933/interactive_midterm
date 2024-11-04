@@ -5,6 +5,10 @@ let pause = false;
 let winner = "";
 let fBase;
 
+let ready1 = false;
+let ready2 = false;
+let countDown = 100;
+
 function preload() {
     artHitMap = loadImage('images/hitmap.png');
     artBackground = loadImage('images/tankGraphic.png');
@@ -20,6 +24,7 @@ function setup() {
     rectMode(CENTER);
     textFont(fBase);
     imageMode(CENTER);
+    strokeCap(SQUARE);
 
     // Resize images to match canvas size
     artHitMap.resize(width, height);
@@ -27,8 +32,8 @@ function setup() {
     tankImg1.resize(40, 40);
     tankImg2.resize(40, 40);
 
-    tank1 = new Tank(465, 250, 4.7, 87, 65, 68, 83, 16, tankImg1, color(255, 0, 0));
-    tank2 = new Tank(35, 250, 4.7, 73, 74, 76, 75, 13, tankImg2, color(0, 255, 0));
+    tank1 = new Tank(35, 250, 4.7, 87, 65, 68, 83, 16, tankImg1, color(255, 0, 0));
+    tank2 = new Tank(465, 250, 4.7, 73, 74, 76, 75, 13, tankImg2, color(0, 255, 0));
 }
 
 function draw() {
@@ -44,33 +49,73 @@ function draw() {
     }
 }
 
-function pauseGame() {
-    pause = true;
+function togglePause() {
+    pause = !pause;
 }
 
 function resetGame() {
-    tank1.position.set(465, 250);
-    tank2.position.set(35, 250);
+    tank1.position.set(35, 250);
+    tank2.position.set(465, 250);
+    tank1.angle = -PI/2
+    tank2.angle = -PI/2
     alive = true;
     pause = false;
     winner = ""; // Reset winner message
+    ready1 = false;
+    ready2 = false;
+    countDown = 100;
 }
 
 function eliminated1() {
-    pauseGame();
+    togglePause();
     winner = "Player 1 Wins!";
 }
 
 function eliminated2() {
-    pauseGame();
+    togglePause();
     winner = "Player 2 Wins!";
 }
 
 function gamePlay() {
     if (!pause) {
-        tank1.update();
+
+        textAlign(CENTER)
+        textSize(20)
+        strokeWeight(5)
+        stroke(0)
+
+        if (ready1 & ready2){
+            if (countDown <= 0 ){
+                tank1.update();
+                tank2.update();
+            }
+            else{
+                text("GET READY", width/2, height/2)
+            }
+            if (countDown <= 0 & countDown >= -100){
+                text("GO!", width/2, height/2)
+            }
+            countDown-=1;
+        }
+
+        if (!ready1){
+            fill(255)
+            text("PLAYER 1 READY UP", 100, 100)
+        }
+        if (ready1 & countDown >= 0){
+            fill(0,255,0)
+            text("PLAYER 1 READY", 100, 100)
+        }
+        if(!ready2 & countDown >= 0){
+            fill(255)
+            text("PLAYER 2 READY UP", 400, 100)
+        }
+        if (ready2 & countDown >= 0){
+            fill(0,255,0)
+            text("PLAYER 2 READY", 400, 100)
+        }
+
         tank1.display();
-        tank2.update();
         tank2.display();
 
         // Check for missile collisions
@@ -83,6 +128,23 @@ function gamePlay() {
             eliminated2();
         }
     }
+}
+
+function keyPressed(){
+    if (!ready1){
+        if (key == 'w'){
+            ready1 = true;
+        }
+    }
+    if(!ready2){
+        if (key == 'i'){
+            ready2 = true;
+        }
+    }
+    if (key == 'p'){
+        resetGame();
+    }
+    
 }
 
 function checkMissileTankCollision(missiles, tank) {
@@ -257,6 +319,7 @@ class Missile {
     display() {
         push();
         fill(this.color);
+        strokeWeight(2)
         ellipse(this.position.x, this.position.y, this.size);
         pop();
     }

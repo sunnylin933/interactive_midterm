@@ -1,47 +1,113 @@
 let player;
 let segments = [];
 let bullets = [];
-let segmentWidth = 20; // Width of each segment
-let segmentSpeed = 0.5; // Slow falling speed
-let fallingAreaWidth = 200; // Width of the falling area
-let uniformHeight = 60; // Initial uniform height for all segments
-let shiftInterval = 60; // Frames between shifting clusters to the right
+let segmentWidth = 20;
+let segmentSpeed = 0.5;
+let fallingAreaWidth = 200;
+let uniformHeight = 60;
+let shiftInterval = 60;
 let cone;
-let gameWon = false; // To track if the player has won
-let frameCounter = 0; // Counter to track frame shifts
-let explosionAmount = 10; // Amount to reduce the height of a segment upon bullet impact
+let gameWon = false;
+let frameCounter = 0;
+let explosionAmount = 10;
+let coneColor;
+let colorChangeInterval = 120;
+let player1Lives = 1;
+let player2Lives = 1;
+let activePlayer = 1;
+let player1Score = 0;
+let player2Score = 0;
+let startDelay = 180;
+let isGameActive = false;
+let isTurnOver = false; // Track if the turn has ended
+let winner = null;
 
 function setup() {
-  createCanvas(800, 600);
+  createCanvas(500, 500);
+  setupPlayer();
+  spawnSegments();
+  spawnCone();
+  coneColor = color(random(255), random(255), random(255));
+}
+
+function setupPlayer() {
   player = {
     x: width / 2,
     y: height - 100,
     size: 20,
     speed: 5
   };
-  spawnSegments(); // Spawn clusters only once
-  spawnCone(); // Spawn the cone above the clusters
 }
 
 function draw() {
   background(0);
   drawFallingArea();
-  handleSegments();
-  handleBullets();
-  drawPlayer();
-  handlePlayerMovement();
-  checkCollisions();
-  drawCone();
 
-  if (gameWon) {
-    displayWinMessage();
+  if (winner) {
+    displayWinner();
+  } else if (isTurnOver) {
+    displayEndOfTurnMessage();
+    startDelay--;
+    if (startDelay <= 0) {
+      endTurn();
+    }
+  } else if (startDelay > 0) {
+    displayStartMessage();
+    startDelay--;
+  } else {
+    isGameActive = true;
+    handleSegments();
+    handleBullets();
+    drawPlayer();
+    handlePlayerMovement();
+    checkCollisions();
+    drawCone();
+
+    if (gameWon) {
+      if (activePlayer === 1) {
+        player1Score++;
+      } else {
+        player2Score++;
+      }
+      isTurnOver = true;
+      startDelay = 180; // Reset delay for the end of turn
+    }
+
+    frameCounter++;
+    if (frameCounter % shiftInterval === 0) {
+      shiftClusters();
+    }
+
+    if (frameCounter % colorChangeInterval === 0) {
+      coneColor = color(random(255), random(255), random(255));
+    }
   }
 
-  // Increment frame counter and shift clusters at the specified interval
-  frameCounter++;
-  if (frameCounter % shiftInterval === 0) {
-    shiftClusters();
-  }
+  displayScoresAndLives();
+}
+
+function displayStartMessage() {
+  fill(255);
+  textSize(32);
+  textAlign(CENTER, CENTER);
+  textFont('Courier');
+  text(`PLAYER ${activePlayer} START`, width / 2, height / 2);
+}
+
+function displayEndOfTurnMessage() {
+  fill(255);
+  textSize(32);
+  textAlign(CENTER, CENTER);
+  textFont('Courier');
+  text(`End of Turn: Player ${activePlayer}`, width / 2, height / 2);
+}
+
+function displayWinner() {
+  fill(255, 0, 0);
+  textSize(40);
+  textAlign(CENTER, CENTER);
+  textFont('Courier');
+  text(`WINNER: PLAYER ${winner}`, width / 2, height / 2);
 }
 
 function drawFallingArea() {
@@ -56,13 +122,11 @@ function handleSegments() {
     let segment = segments[i];
     segment.y += segmentSpeed;
 
-    // Draw the segment if it still has height
     if (segment.height > 0) {
       fill(segment.color);
       rect(segment.x, segment.y, segmentWidth, segment.height);
     }
 
-    // Remove segments that have fallen off the screen or no longer have height
     if (segment.y > height || segment.height <= 0) {
       segments.splice(i, 1);
     }
@@ -70,52 +134,60 @@ function handleSegments() {
 }
 
 function handleBullets() {
+  let leftBoundary = width / 2 - fallingAreaWidth / 2;
+  let rightBoundary = width / 2 + fallingAreaWidth / 2;
+
   for (let i = bullets.length - 1; i >= 0; i--) {
     let bullet = bullets[i];
-    bullet.y -= 5; // Move the bullet upward
+    bullet.x += bullet.vx;
+    bullet.y += bullet.vy;
 
-    // Draw the bullet
+    if (bullet.x <= leftBoundary || bullet.x >= rightBoundary) {
+      bullet.vx *= -1;
+    }
+    if (bullet.y <= 0 || bullet.y >= height) {
+      bullet.vy *= -1;
+    }
+
     fill(255, 0, 255);
     ellipse(bullet.x, bullet.y, 5, 5);
 
-    // Remove bullets that go off the screen
-    if (bullet.y < 0) {
+    if (bullet.x < 0 || bullet.x > width || bullet.y < 0 || bullet.y > height) {
       bullets.splice(i, 1);
     }
   }
 }
 
 function spawnSegments() {
-  let numSegments = Math.ceil(fallingAreaWidth / segmentWidth); // Calculate the number of segments needed
+  let numSegments = Math.ceil(fallingAreaWidth / segmentWidth);
 
   for (let i = 0; i < numSegments; i++) {
-    // Create a curved effect using a sine wave for the y-position
-    let angle = (i / numSegments) * PI; // Angle for sine wave
-    let curveOffset = sin(angle) * 50; // Amplitude of the curve
+    let angle = (i / numSegments) * PI;
+    let curveOffset = sin(angle) * 50;
 
     segments.push({
       x: width / 2 - fallingAreaWidth / 2 + i * segmentWidth,
-      y: -uniformHeight + curveOffset, // Apply the curve effect to the y-position
+      y: -uniformHeight + curveOffset,
       width: segmentWidth,
-      height: uniformHeight, // Set uniform height for all segments
-      color: generateDistinctColor(i, numSegments) // Generate distinct colors for each segment
+      height: uniformHeight,
+      color: generateDistinctColor(i, numSegments)
     });
   }
 }
 
 function shiftClusters() {
-  // Shift each segment to the right
   for (let i = segments.length - 1; i >= 0; i--) {
     segments[i].x += segmentWidth;
-    // If the segment goes past the right edge, wrap it to the left
+
     if (segments[i].x >= width / 2 + fallingAreaWidth / 2) {
       segments[i].x = width / 2 - fallingAreaWidth / 2;
     }
+
+    segments[i].color = color(random(255), random(255), random(255));
   }
 }
 
 function generateDistinctColor(index, total) {
-  // Create a color with some variation to make it distinct from its neighbors
   let hueValue = (index / total) * 360 + random(-30, 30);
   return color(`hsl(${hueValue}, 100%, 50%)`);
 }
@@ -123,20 +195,28 @@ function generateDistinctColor(index, total) {
 function spawnCone() {
   cone = {
     x: width / 2,
-    y: -uniformHeight - 30, // Position above the segments
+    y: -uniformHeight - 30,
     width: fallingAreaWidth,
-    height: 30, // Height of the cone
-    speed: segmentSpeed, // Move with the segments
-    color: color(random(255), random(255), random(255)) // Random color for the cone
+    height: 30,
+    speed: segmentSpeed
   };
 }
 
 function drawCone() {
-  // Draw the cone spanning the entire width of the clusters
-  fill(cone.color);
-  rect(cone.x - cone.width / 2, cone.y, cone.width, cone.height);
+  let numLayers = 15;
+  let layerHeight = 5;
+  let baseWidth = fallingAreaWidth;
+  let coneX = cone.x;
+  let coneY = cone.y;
 
-  // Move the cone down
+  fill(coneColor);
+  noStroke();
+
+  for (let i = 0; i < numLayers; i++) {
+    let layerWidth = map(i, 0, numLayers - 1, baseWidth, 0);
+    rect(coneX - layerWidth / 2, coneY - i * layerHeight, layerWidth, layerHeight);
+  }
+
   cone.y += cone.speed;
 }
 
@@ -146,59 +226,52 @@ function drawPlayer() {
 }
 
 function handlePlayerMovement() {
-  if (keyIsDown(LEFT_ARROW)) {
+  if (keyIsDown(65)) {
     player.x -= player.speed;
   }
-  if (keyIsDown(RIGHT_ARROW)) {
+  if (keyIsDown(68)) {
     player.x += player.speed;
   }
-  if (keyIsDown(UP_ARROW)) {
+  if (keyIsDown(87)) {
     player.y -= player.speed;
   }
-  if (keyIsDown(DOWN_ARROW)) {
+  if (keyIsDown(83)) {
     player.y += player.speed;
   }
 
-  // Constrain the player within the falling area
   let leftBoundary = width / 2 - fallingAreaWidth / 2;
   let rightBoundary = width / 2 + fallingAreaWidth / 2;
   player.x = constrain(player.x, leftBoundary, rightBoundary - player.size);
 }
 
-function keyPressed() {
-  if (key === ' ') {
-    // Shoot a bullet
-    bullets.push({
-      x: player.x,
-      y: player.y
-    });
-  }
+function mousePressed() {
+  let angle = atan2(mouseY - player.y, mouseX - player.x);
+  let bullet = {
+    x: player.x,
+    y: player.y,
+    vx: cos(angle) * 5,
+    vy: sin(angle) * 5
+  };
+  bullets.push(bullet);
 }
 
 function checkCollisions() {
-  for (let i = segments.length - 1; i >= 0; i--) {
-    let segment = segments[i];
-
-    // Check collision between bullets and segments
-    for (let j = bullets.length - 1; j >= 0; j--) {
-      let bullet = bullets[j];
-      if (
-        bullet.x > segment.x &&
-        bullet.x < segment.x + segment.width &&
-        bullet.y > segment.y &&
-        bullet.y < segment.y + segment.height
-      ) {
-        // Reduce the height of the segment when hit
-        segment.height -= explosionAmount;
-        bullets.splice(j, 1); // Remove the bullet
-
-        // Stop checking further collisions for this bullet
-        break;
-      }
+  for (let segment of segments) {
+    if (
+      player.x > segment.x &&
+      player.x < segment.x + segment.width &&
+      player.y > segment.y &&
+      player.y < segment.y + segment.height
+    ) {
+      if (activePlayer === 1) player1Lives--; else player2Lives--;
+      isTurnOver = true;
+      startDelay = 180;
+      if (player1Lives === 0 && player2Lives === 1) winner = 2;
+      else if (player2Lives === 0 && player1Lives === 1) winner = 1;
+      return;
     }
   }
 
-  // Check collision between player and the cone
   if (
     player.x > cone.x - cone.width / 2 &&
     player.x < cone.x + cone.width / 2 &&
@@ -208,35 +281,50 @@ function checkCollisions() {
     gameWon = true;
   }
 
-  // Check collision between player and segments
-  for (let segment of segments) {
-    if (
-      player.x > segment.x &&
-      player.x < segment.x + segment.width &&
-      player.y > segment.y &&
-      player.y < segment.y + segment.height
-    ) {
-      resetGame();
+  for (let i = segments.length - 1; i >= 0; i--) {
+    let segment = segments[i];
+    for (let j = bullets.length - 1; j >= 0; j--) {
+      let bullet = bullets[j];
+      checkBulletCollisions(bullet);
     }
   }
 }
 
-function displayWinMessage() {
-  fill(255);
-  textSize(32);
-  textAlign(CENTER, CENTER);
-  text("You Win!", width / 2, height / 2);
-  noLoop(); // Stop the game
+function checkBulletCollisions(bullet) {
+  for (let i = segments.length - 1; i >= 0; i--) {
+    let segment = segments[i];
+    if (
+      bullet.x >= segment.x &&
+      bullet.x <= segment.x + segment.width &&
+      bullet.y >= segment.y &&
+      bullet.y <= segment.y + segment.height
+    ) {
+      segment.height -= explosionAmount;
+      if (segment.height <= 0) segments.splice(i, 1);
+      bullets.splice(bullets.indexOf(bullet), 1);
+      return;
+    }
+  }
 }
 
-function resetGame() {
-  player.x = width / 2;
-  player.y = height - 100;
+function displayScoresAndLives() {
+  fill(255);
+  textSize(16);
+  text(`Player 1 Lives: ${player1Lives}  Score: ${player1Score}`, 10, 20);
+  text(`Player 2 Lives: ${player2Lives}  Score: ${player2Score}`, 10, 40);
+  text(`Turn: Player ${activePlayer}`, width - 120, 20);
+}
+
+function endTurn() {
+  gameWon = false;
   segments = [];
   bullets = [];
-  gameWon = false;
   spawnSegments();
   spawnCone();
-  frameCounter = 0; // Reset the frame counter
-  loop(); // Restart the game if it was stopped
+  setupPlayer();
+  frameCounter = 0;
+  isGameActive = false;
+  isTurnOver = false;
+  startDelay = 180;
+  activePlayer = activePlayer === 1 ? 2 : 1;
 }
