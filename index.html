@@ -19,9 +19,9 @@
       color: white;
     }
 
-    hr{
-      width:70%;
-      margin-bottom:20px;
+    hr {
+      width: 70%;
+      margin-bottom: 20px;
     }
 
     #title {
@@ -64,8 +64,8 @@
     }
 
     #hudCanvas {
-      width:505px;
-      height:75px;
+      width: 505px;
+      height: 75px;
     }
 
     .squareCanvas {
@@ -108,7 +108,23 @@
     </div>
   </div>
   <div id="instructionContainer">
-    <div>WASD to move. <br> Select a minigame.</div>
+    <div id="lobbyInstruction">
+      WASD to move. <br>
+      Select a minigame.
+    </div>
+    <div id="cycleInstruction" class="hidden">
+      Player 1: WASD to change direction. <br>
+      Player 2: IJKL to change direction. <br>
+      Try to destroy your opponent by making them crash into a wall or light trail.
+    </div>
+    <div id="tankInstruction" class="hidden">
+      Player 1: WASD to move. L Shift to shoot. <br>
+      Player 2: IJKL to change direction. Enter to shoot.<br>
+      Destroy your opponent's tank.
+    </div>
+    <div id="coneInstruction" class="hidden">
+      Placeholder.
+    </div>
   </div>
 
   <script>
@@ -116,65 +132,73 @@
     var p1Lives = 3;
     var p2Lives = 3;
 
+    let lobby = document.getElementById('lobbyContainer');
     let cycle = document.getElementById('cycleContainer');
     let tank = document.getElementById('tankContainer');
-    let lobby = document.getElementById('lobbyContainer');
     let cone = document.getElementById('coneContainer');
+
+    let lobbyGame = document.getElementById('lobbyCanvas');
     let cycleGame = document.getElementById('cycleCanvas');
     let tankGame = document.getElementById('tankCanvas');
-    let lobbyGame = document.getElementById('lobbyCanvas');
     let coneGame = document.getElementById('coneCanvas');
-    let minigames = [cycle, tank, lobby];
+
+    let lobbyInstruction = document.getElementById('lobbyInstruction');
+    let cycleInstruction = document.getElementById('cycleInstruction');
+    let tankInstruction = document.getElementById('tankInstruction');
+    let coneInstruction = document.getElementById('coneInstruction');
+
+    let minigames = [cycle, tank, lobby, cone];
+    let instructions = [lobbyInstruction, cycleInstruction, tankInstruction, coneInstruction];
 
     function enableMinigame(minigameNumber) {
+      for (let i = 0; i < minigames.length; i++) {
+        minigames[i].classList.add('hidden');
+        instructions[i].classList.add('hidden');
+      }
       switch (minigameNumber) {
         case 0:
           //1 - Lightcycle
-          for (let i = 0; i < minigames.length; i++) {
-            minigames[i].classList.add('hidden');
-          }
           cycle.classList.remove('hidden');
+          cycleInstruction.classList.remove('hidden');
           break;
         case 1:
           //2 - Tank
-          for (let i = 0; i < minigames.length; i++) {
-            minigames[i].classList.add('hidden');
-          }
           tank.classList.remove('hidden');
+          tankInstruction.classList.remove('hidden');
           break;
         case 2:
           //3 - Cone
-          for (let i = 0; i < minigames.length; i++) {
-            minigames[i].classList.add('hidden');
-          }
           cone.classList.remove('hidden');
+          coneInstruction.classList.remove('hidden');
           break;
       }
     }
 
-    function endGame(losingPlayer){
-      if(losingPlayer == 1){
+    function endGame(losingPlayer) {
+      if (losingPlayer == 1) {
         p1Lives -= 1;
       }
-      else if(losingPlayer == 2){
+      else if (losingPlayer == 2) {
         p2Lives -= 1;
       }
-      if(p1Lives <= 0 || p2Lives <= 0){
+      if (p1Lives <= 0 || p2Lives <= 0) {
         lobbyGame.contentWindow.endGame();
       }
       lobbyGame.contentWindow.resetPosition();
-      setTimeout(function(){
-          //Return to Lobby
-          console.log('Returning to lobby.')
-          for (let i = 0; i < minigames.length; i++) {
-            minigames[i].classList.add('hidden');
-          }
-          lobby.classList.remove('hidden');
-          
-          //Reset Games
-          cycleGame.contentWindow.resetGame();
-          tankGame.contentWindow.resetGame();
-      },2000);
+      setTimeout(function () {
+        //Return to Lobby
+        console.log('Returning to lobby.')
+        for (let i = 0; i < minigames.length; i++) {
+          minigames[i].classList.add('hidden');
+          instructions[i].classList.add('hidden');
+        }
+        lobby.classList.remove('hidden');
+        lobbyInstruction.classList.remove('hidden');
+
+        //Reset Games
+        cycleGame.contentWindow.resetGame();
+        tankGame.contentWindow.resetGame();
+      }, 2000);
     }
   </script>
 </body>

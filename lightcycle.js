@@ -303,24 +303,24 @@ function keyPressed() {
 
         //Player 2
         if (player2YSpeed == 0) { //This prevents 180 turns
-            if (keyCode === UP_ARROW) {
+            if (key === 'i') {
                 saveLine(2);
                 player2Direction = 0;
 
             }
-            if (keyCode === DOWN_ARROW) {
+            if (key === 'k') {
                 saveLine(2);
                 player2Direction = 2;
 
             }
         }
         if (player2XSpeed == 0) {
-            if (keyCode === RIGHT_ARROW) {
+            if (key === 'l') {
                 saveLine(2);
                 player2Direction = 1;
 
             }
-            if (keyCode === LEFT_ARROW) {
+            if (key === 'j') {
                 saveLine(2);
                 player2Direction = 3;
 
@@ -330,7 +330,7 @@ function keyPressed() {
     else {
         if (!isGameEnd) {
             //Ready Checks
-            if (keyCode === UP_ARROW || keyCode === DOWN_ARROW || keyCode === RIGHT_ARROW || keyCode === LEFT_ARROW) {
+            if (key === 'i' || key === 'l' || key === 'k' || keyCode === 'j') {
                 isReady2 = true;
             }
 
