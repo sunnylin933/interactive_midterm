@@ -5,6 +5,7 @@ let isReady2 = false;
 let isReadyChecked = false;
 let isPlaying = false;
 let isGameEnd = false;
+let isEnding = false;
 let playerWon;
 
 //Player1 Variables
@@ -246,7 +247,6 @@ function draw() {
     if(isGameEnd){
         fill(0,0,0,180);
         strokeWeight(15);
-        
         textSize(40);
         if(playerWon == 1){
             stroke(140, 184, 255);
@@ -254,13 +254,21 @@ function draw() {
             noStroke();
             fill(140, 184, 255);
             text('Player 1 Wins!', canvasSize/2, canvasSize/2);
+            if(!isEnding){
+                window.parent.endGame(2);
+                isEnding = true;
+            }
         }
-        else{
+        else if(playerWon == 2){
             stroke(252, 255, 105);
             rect(0,0,canvasSize);
             noStroke();
             fill(252, 255, 105);
             text('Player 2 Wins!', canvasSize/2, canvasSize/2);
+            if(!isEnding){
+                window.parent.endGame(1);
+                isEnding = true;
+            }
         }
     }
 }
@@ -365,4 +373,41 @@ function endLevel(losingPlayer) {
     textSize(20);
     fill(255);
     //Reset Variable
+}
+
+function resetGame(){
+    background(0);
+    isReady1 = false;
+    isReady2 = false;
+    isReadyChecked = false;
+    isPlaying = false;
+    isGameEnd = false;
+    isEnding = false;
+    playerWon = 0;
+    player1X = canvasSize / 2;
+    player1Y = canvasSize - 55;
+    player1XSpeed = 0;
+    player1YSpeed = 0;
+    player1MoveSpeed = 1.5;
+    player1Direction = 0;
+    player1Rotation = 90;
+    p1XOffset = 0;
+    p1LineStartX = canvasSize / 2;
+    p1LineStartY = canvasSize - 45;
+    p1LineEndX = 0;
+    p1LineEndY = 0;
+    player2X = canvasSize / 2;
+    player2Y = 55;
+    player2XSpeed = 0;
+    player2YSpeed = 0;
+    player2MoveSpeed = 1.5;
+    player2Direction = 2;
+    player2Rotation = 270;
+    p2XOffset = 0;
+    p2YOffset = -20;
+    p2LineStartX = canvasSize / 2;
+    p2LineStartY = 55;
+    p2LineEndX = 0;
+    p2LineEndY = 0;
+    buffer = createGraphics(canvasSize, canvasSize);
 }

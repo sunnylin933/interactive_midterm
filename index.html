@@ -21,22 +21,23 @@
 
     hr{
       width:70%;
+      margin-bottom:20px;
     }
 
     #title {
       font-family: "Goldman", sans-serif;
-      font-size: 62px;
+      font-size: 48px;
       font-weight: 700;
       text-align: center;
-      margin: 25px 0px 0px 0px;
+      margin: 5px 0px 0px 0px;
     }
 
     #subtitle {
       font-family: "Orbitron", sans-serif;
-      font-size: 22px;
+      font-size: 18px;
       font-weight: 100;
       text-align: center;
-      margin: 0px 0px 30px 0px;
+      margin: 0px 0px 15px 0px;
     }
 
     #gameContainer {
@@ -82,11 +83,11 @@
   <h1 id="title">Tron</h1>
   <h2 id="subtitle">The Arcade Game</h2>
   <hr>
-  <div style="display:flex; justify-content: center; align-items: center; margin:20px 0px;gap:10px;">
+  <!-- <div style="display:flex; justify-content: center; align-items: center; margin:20px 0px;gap:10px;">
     <button id="lobbyButton">Lobby</button>
     <button id="cycleButton">Lightcycle Minigame</button>
     <button id="tankButton">Tank Minigame</button>
-  </div>
+  </div> -->
   <div id="hudContainer">
     <div id="hudHolder">
       <iframe id="hudCanvas" src="hud.html" scrolling="no" frameBorder="0"></iframe>
@@ -103,59 +104,67 @@
       <iframe class="squareCanvas" id="tankCanvas" src="tanks.html" scrolling="no" frameBorder="0"></iframe>
     </div>
   </div>
-  <div id="instructionContainer">Select from any minigame.</div>
+  <div id="instructionContainer">
+    <div>WASD to move. <br> Select a minigame.</div>
+  </div>
 
   <script>
-    let cycleButton = document.getElementById('cycleButton');
-    let tankButton = document.getElementById('tankButton');
-    let lobbyButton = document.getElementById('lobbyButton');
+    //Game Variables
+    var p1Lives = 3;
+    var p2Lives = 3;
+
     let cycle = document.getElementById('cycleContainer');
     let tank = document.getElementById('tankContainer');
     let lobby = document.getElementById('lobbyContainer');
+    let cycleGame = document.getElementById('cycleCanvas');
+    let lobbyGame = document.getElementById('lobbyCanvas');
     let minigames = [cycle, tank, lobby];
-
-    //TEMPORARY FUNCTIONS
-    lobbyButton.onclick = function () {
-      enableMinigame(0);
-    }
-
-    cycleButton.onclick = function () {
-      enableMinigame(1);
-    }
-
-    tankButton.onclick = function () {
-      enableMinigame(2);
-    }
 
     function enableMinigame(minigameNumber) {
       switch (minigameNumber) {
         case 0:
-          //0 - Lobby
-          for (let i = 0; i < minigames.length; i++) {
-            minigames[i].classList.add('hidden');
-          }
-          lobby.classList.remove('hidden');
-          break;
-        case 1:
           //1 - Lightcycle
           for (let i = 0; i < minigames.length; i++) {
             minigames[i].classList.add('hidden');
           }
           cycle.classList.remove('hidden');
           break;
-        case 2:
+        case 1:
           //2 - Tank
           for (let i = 0; i < minigames.length; i++) {
             minigames[i].classList.add('hidden');
           }
           tank.classList.remove('hidden');
           break;
-        case 3:
+        case 2:
           //3 - Cone
 
           break;
       }
+    }
 
+    function endGame(losingPlayer){
+      if(losingPlayer == 1){
+        p1Lives -= 1;
+      }
+      else if(losingPlayer == 2){
+        p2Lives -= 1;
+      }
+      if(p1Lives <= 0 || p2Lives <= 0){
+        lobbyGame.contentWindow.endGame();
+      }
+      lobbyGame.contentWindow.resetPosition();
+      setTimeout(function(){
+          //Return to Lobby
+          console.log('Returning to lobby.')
+          for (let i = 0; i < minigames.length; i++) {
+            minigames[i].classList.add('hidden');
+          }
+          lobby.classList.remove('hidden');
+          
+          //Reset Games
+          cycleGame.contentWindow.resetGame();
+      },2000);
     }
   </script>
 </body>
