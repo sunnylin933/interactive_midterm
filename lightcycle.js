@@ -180,8 +180,9 @@ function draw() {
 
         //Player1 Collision Detection
         let p1DetectedColor = red(buffer.get(player1X + p1XOffset, player1Y + p1YOffset));
+        let p1Collider2 = red(buffer.get(player1X + p1XOffset/2, player1Y+ p1YOffset/2));
         //ellipse(player1X + p1XOffset, player1Y + p1YOffset, 10);
-        if (p1DetectedColor != 0) {
+        if (p1DetectedColor != 0 || p1Collider2 != 0) {
             endLevel(1);
         }
         if (player1X + p1XOffset >= canvasSize || player1X + p1XOffset <= 0
@@ -191,8 +192,9 @@ function draw() {
 
         //Player2 Collision Detection
         let p2DetectedColor = blue(buffer.get(player2X + p2XOffset, player2Y + p2YOffset));
+        let p2Collider2 =  blue(buffer.get(player2X + p2XOffset/2, player2Y + p2YOffset/2));
         //ellipse(player2X + p2XOffset, player2Y + p2YOffset, 10);
-        if (p2DetectedColor != 0) {
+        if (p2DetectedColor != 0 || p2Collider2 != 0) {
             endLevel(2);
         }
         if (player2X + p2XOffset >= canvasSize || player2X + p2XOffset <= 0
