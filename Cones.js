@@ -12,18 +12,40 @@ let frameCounter = 0;
 let explosionAmount = 10;
 let coneColor;
 let colorChangeInterval = 120;
-let player1Lives = 1;
-let player2Lives = 1;
-let activePlayer = 1;
-let player1Score = 0;
-let player2Score = 0;
-let startDelay = 180;
-let isGameActive = false;
-let isTurnOver = false; // Track if the turn has ended
-let winner = null;
+let player1Lives;
+let player2Lives;
+let activePlayer;
+let player1Score;
+let player2Score;
+let startDelay;
+let isGameActive;
+let isTurnOver;
+let winner;
+let playerImg;
 
+a
 function setup() {
   createCanvas(500, 500);
+  playerImg = loadImage('images/ConesImage.png'); 
+  resetGame(); 
+}
+
+
+
+function resetGame() {
+  player1Lives = 1;
+  player2Lives = 1;
+  player1Score = 0;
+  player2Score = 0;
+  activePlayer = 1;
+  startDelay = 180;
+  isGameActive = false;
+  isTurnOver = false;
+  winner = null;
+  gameWon = false;
+  frameCounter = 0;
+  segments = [];
+  bullets = [];
   setupPlayer();
   spawnSegments();
   spawnCone();
@@ -107,7 +129,7 @@ function displayWinner() {
   textSize(40);
   textAlign(CENTER, CENTER);
   textFont('Courier');
-  text(`WINNER: PLAYER ${winner}`, width / 2, height / 2);
+  text(winner === 0 ? `TIE GAME` : `WINNER: PLAYER ${winner}`, width / 2, height / 2);
 }
 
 function drawFallingArea() {
@@ -221,9 +243,10 @@ function drawCone() {
 }
 
 function drawPlayer() {
-  fill(0, 255, 255);
-  ellipse(player.x, player.y, player.size, player.size);
+  imageMode(CENTER);
+  image(playerImg, player.x, player.y, player.size * 2, player.size * 2);
 }
+
 
 function handlePlayerMovement() {
   if (keyIsDown(65)) {
@@ -266,8 +289,6 @@ function checkCollisions() {
       if (activePlayer === 1) player1Lives--; else player2Lives--;
       isTurnOver = true;
       startDelay = 180;
-      if (player1Lives === 0 && player2Lives === 1) winner = 2;
-      else if (player2Lives === 0 && player1Lives === 1) winner = 1;
       return;
     }
   }
@@ -310,10 +331,19 @@ function checkBulletCollisions(bullet) {
 function displayScoresAndLives() {
   fill(255);
   textSize(16);
-  text(`Player 1 Lives: ${player1Lives}  Score: ${player1Score}`, 10, 20);
-  text(`Player 2 Lives: ${player2Lives}  Score: ${player2Score}`, 10, 40);
-  text(`Turn: Player ${activePlayer}`, width - 120, 20);
+  textAlign(LEFT);
+
+  // Display lives and scores for Player 1
+  text(`Player 1 - Lives: ${player1Lives}  Score: ${player1Score}`, 10, 20);
+
+  // Display lives and scores for Player 2
+  text(`Player 2 - Lives: ${player2Lives}  Score: ${player2Score}`, 10, 40);
+
+  // Display the active player
+  textAlign(RIGHT);
+  text(`Turn: Player ${activePlayer}`, width - 10, 20);
 }
+
 
 function endTurn() {
   gameWon = false;
@@ -326,5 +356,17 @@ function endTurn() {
   isGameActive = false;
   isTurnOver = false;
   startDelay = 180;
-  activePlayer = activePlayer === 1 ? 2 : 1;
+
+  if (activePlayer === 1) {
+    activePlayer = 2;
+  } else {
+    activePlayer = 1;
+    if (player1Lives === 0 && player2Lives === 0) {
+      winner = 0; // Tie
+    } else if (player1Lives === 0) {
+      winner = 2; // Player 2 wins
+    } else if (player2Lives === 0) {
+      winner = 1; // Player 1 wins
+    }
+  }
 }
