@@ -334,10 +334,10 @@ function displayScoresAndLives() {
   textAlign(LEFT);
 
   // Display lives and scores for Player 1
-  text(`Player 1 - Lives: ${player1Lives}  Score: ${player1Score}`, 10, 20);
+  text(`Player 1 Score: ${player1Score}`, 10, 20);
 
   // Display lives and scores for Player 2
-  text(`Player 2 - Lives: ${player2Lives}  Score: ${player2Score}`, 10, 40);
+  text(`Player 2 Score: ${player2Score}`, 10, 40);
 
   // Display the active player
   textAlign(RIGHT);
