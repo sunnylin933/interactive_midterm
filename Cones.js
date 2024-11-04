@@ -26,7 +26,7 @@ let playerImg;
 a
 function setup() {
   createCanvas(500, 500);
-  playerImg = loadImage('Screenshot 2024-11-04 at 11.44.11 AM.png'); 
+  playerImg = loadImage('images/ConesImage.png'); 
   resetGame(); 
 }
 
