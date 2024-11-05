@@ -23,7 +23,6 @@ let isTurnOver;
 let winner;
 let playerImg;
 
-a
 function setup() {
   createCanvas(500, 500);
   playerImg = loadImage('images/ConesImage.png'); 
