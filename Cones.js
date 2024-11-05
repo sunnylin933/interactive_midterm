@@ -24,10 +24,21 @@ let isTurnOver;
 let winner;
 let playerImg;
 
+function preload() {
+  playerImg = loadImage('images/ConesImage.png');
+  fBase = loadFont('fonts/base.ttf');
+  iPlayer1 = loadImage('images/player_char_lobby.png');
+  iPlayer2 = loadImage('images/player_char2_lobby.png');
+  laserSound = loadSound('images/laser.mp3');
+  sScore = loadSound('sounds/score.mp3');
+  sFail = loadSound('sounds/fail.wav');
+}
+
 function setup() {
   createCanvas(500, 500);
-  playerImg = loadImage('images/ConesImage.png'); // Replace with the actual path
+  textFont(fBase);
   resetGame();
+  laserSound.setVolume(0.3);
 }
 
 function resetGame() {
@@ -55,7 +66,7 @@ function setupPlayer() {
   player = {
     x: width / 2,
     y: height - 100,
-    size: 20,
+    size: 32,
     speed: 5
   };
 }
@@ -67,6 +78,7 @@ function draw() {
   if (winner) {
     displayWinner();
   } else if (isTurnOver) {
+    isGameActive = false;
     displayEndOfTurnMessage();
     startDelay--;
     if (startDelay <= 0) {
@@ -112,7 +124,6 @@ function displayStartMessage() {
   fill(255);
   textSize(32);
   textAlign(CENTER, CENTER);
-  textFont('Courier');
   text(`PLAYER ${activePlayer} START`, width / 2, height / 2);
 }
 
@@ -120,7 +131,6 @@ function displayEndOfTurnMessage() {
   fill(255);
   textSize(32);
   textAlign(CENTER, CENTER);
-  textFont('Courier');
   text(`End of Turn: Player ${activePlayer}`, width / 2, height / 2);
 }
 
@@ -128,8 +138,14 @@ function displayWinner() {
   fill(255, 0, 0);
   textSize(40);
   textAlign(CENTER, CENTER);
-  textFont('Courier');
-  text(winner === 0 ? `TIE GAME` : `WINNER: PLAYER ${winner}`, width / 2, height / 2);
+  if(winner == 1){
+    fill(140, 184, 255);
+  }
+  else if(winner == 2)
+  {
+    fill(252, 255, 105);
+  }
+  text(winner === 0 ? `TIE GAME` : `PLAYER ${winner} WINS`, width / 2, height / 2);
 }
 
 function drawFallingArea() {
@@ -241,7 +257,13 @@ function drawCone() {
 
 function drawPlayer() {
   imageMode(CENTER);
-  image(playerImg, player.x, player.y, player.size * 2, player.size * 2);
+  if (activePlayer == 1) {
+    image(iPlayer1, player.x, player.y, player.size, player.size * 2);
+  }
+  else if (activePlayer == 2) {
+    image(iPlayer2, player.x, player.y, player.size, player.size * 2);
+  }
+
 }
 
 function handlePlayerMovement() {
@@ -260,18 +282,23 @@ function handlePlayerMovement() {
 
   let leftBoundary = width / 2 - fallingAreaWidth / 2;
   let rightBoundary = width / 2 + fallingAreaWidth / 2;
-  player.x = constrain(player.x, leftBoundary, rightBoundary - player.size);
+  player.x = constrain(player.x, leftBoundary + player.size/2, rightBoundary - player.size/2);
+  if(player.y >= 500 - player.size){player.y = 500 - player.size}; 
 }
 
 function mousePressed() {
-  let angle = atan2(mouseY - player.y, mouseX - player.x);
-  let bullet = {
-    x: player.x,
-    y: player.y,
-    vx: cos(angle) * 5,
-    vy: sin(angle) * 5
-  };
-  bullets.push(bullet);
+  if (isGameActive) {
+    let angle = atan2(mouseY - player.y, mouseX - player.x);
+    let bullet = {
+      x: player.x,
+      y: player.y,
+      vx: cos(angle) * 5,
+      vy: sin(angle) * 5
+    };
+    bullets.push(bullet);
+    laserSound.play();
+  }
+
 }
 
 function checkCollisions() {
@@ -279,10 +306,10 @@ function checkCollisions() {
   for (let i = segments.length - 1; i >= 0; i--) {
     let segment = segments[i];
     if (
-      player.x + player.size / 2 > segment.x &&
-      player.x - player.size / 2 < segment.x + segment.width &&
-      player.y + player.size / 2 > segment.y &&
-      player.y - player.size / 2 < segment.y + segment.height
+      player.x + player.size / 3 > segment.x &&
+      player.x - player.size / 3 < segment.x + segment.width &&
+      player.y + player.size / 3 > segment.y &&
+      player.y - player.size / 3 < segment.y + segment.height
     ) {
       // If player collides with a segment, they lose a life and the turn ends
       if (activePlayer === 1) {
@@ -290,6 +317,7 @@ function checkCollisions() {
       } else {
         player2Lives--;
       }
+      sFail.play();
       isTurnOver = true;
       startDelay = 180;
       return; // Exit immediately to prevent further actions in this frame
@@ -304,6 +332,7 @@ function checkCollisions() {
     player.y < cone.y + cone.height
   ) {
     gameWon = true;
+    sScore.play();
   }
 
   // Check bullet collisions with segments
@@ -328,7 +357,7 @@ function checkBulletCollisions(bullet) {
     ) {
       segment.height -= explosionAmount;
       if (segment.height <= 0) segments.splice(i, 1);
-      
+
       // Spawn explosion effect
       createExplosion(bullet.x, bullet.y);
 
@@ -358,12 +387,12 @@ function handleExplosions() {
     fill(255, explosion.alpha, 0, explosion.alpha);
     noStroke();
     ellipse(explosion.x, explosion.y, 5, 5);
-    
+
     // Update position and fade out
     explosion.x += explosion.vx;
     explosion.y += explosion.vy;
     explosion.alpha -= 10;
-    
+
     if (explosion.alpha <= 0) {
       explosions.splice(i, 1);
     }
@@ -376,14 +405,14 @@ function displayScoresAndLives() {
   textAlign(LEFT);
 
   // Display lives and scores for Player 1
-  text(`Player 1 Score: ${player1Score}`, 10, 20);
+  text(`P1 Score: ${player1Score}`, 15, 20);
 
   // Display lives and scores for Player 2
-  text(`Player 2 Score: ${player2Score}`, 10, 40);
+  text(`P2 Score: ${player2Score}`, 15, 40);
 
   // Display the active player
   textAlign(RIGHT);
-  text(`Turn: Player ${activePlayer}`, width - 10, 20);
+  text(`Turn: Player ${activePlayer}`, width - 15, 20);
 }
 function endTurn() {
   gameWon = false;
@@ -405,8 +434,10 @@ function endTurn() {
       winner = 0; // Tie
     } else if (player1Lives === 0) {
       winner = 2; // Player 2 wins
+      window.parent.endGame(1);
     } else if (player2Lives === 0) {
       winner = 1; // Player 1 wins
+      window.parent.endGame(2);
     }
   }
 }

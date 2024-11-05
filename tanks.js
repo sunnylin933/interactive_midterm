@@ -34,6 +34,10 @@ function setup() {
 
     tank1 = new Tank(35, 250, 4.7, 87, 65, 68, 83, 16, tankImg1, color(176, 229, 255));
     tank2 = new Tank(465, 250, 4.7, 73, 74, 76, 75, 13, tankImg2, color(255, 241, 176));
+
+    noStroke();
+    laserSound.setVolume(0.35);
+    explosion.setVolume(0.15);
 }
 
 function draw() {
@@ -179,8 +183,7 @@ function displayWinnerMessage(message) {
     // Display the winner message
     textSize(50);
     textAlign(CENTER);
-    fill(255, 215, 0);
-    noStroke();       
+    fill(255, 215, 0);  
     text(message, width / 2, height / 2);
 }
 
@@ -333,6 +336,7 @@ class Missile {
         push();
         fill(this.color);
         strokeWeight(2)
+        
         ellipse(this.position.x, this.position.y, this.size);
         pop();
     }

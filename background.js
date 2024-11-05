@@ -2,11 +2,13 @@
 let counter = 0;
 let counterMax = 1;
 let droppers = [];
+let isPlayingAudio = false;
 
 function preload(){
     iHealth1 = loadImage('images/p1_heart.png');
     iHealth2 = loadImage('images/p2_heart.png');
     fBase = loadFont('fonts/base.ttf');
+    sBGM = loadSound('sounds/bgm.wav')
 }
 
 function setup(){
@@ -18,18 +20,22 @@ function setup(){
     rectMode(CENTER);
 
     counterMax = random(1,5);
+    sBGM.setVolume(0.25);
+    sBGM.loop();
+
+    let button = createButton('BGM Toggle');
+    button.position(10,10);
+    button.mousePressed(toggleSound);
 }
 
 function draw(){
-    background(30, 26, 33);
+    background(30, 26, 33, 50);
     counter++;
     if(counter>=counterMax){
-        droppers.push(new Dropper(random(0,1000), -40));
-        droppers.push(new Dropper(random(0,1000), -40));
-        droppers.push(new Dropper(random(0,1000), -40));
-        droppers.push(new Dropper(random(0,1000), -40));
+        droppers.push(new Dropper(random(0,1000), random(-40, -80)));
+        droppers.push(new Dropper(random(0,1000), random(-40, -80)));
+        droppers.push(new Dropper(random(0,1000), random(-40, -80)));
         counter = 0;
-        console.log('spawn dropper')
     }
 
     for(let i = 0; i < droppers.length; i++){
@@ -60,5 +66,18 @@ class Dropper{
         if(this.y >= 1000 + 10 || this.size <= 0){
             droppers.splice(droppers.indexOf(this),1);
         }
+    }
+}
+
+function toggleSound(){
+    if(!isPlayingAudio){
+        
+        sBGM.loop();
+        isPlayingAudio = true;
+    }
+    else
+    {
+        sBGM.stop();
+        isPlayingAudio = false;
     }
 }

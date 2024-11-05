@@ -48,6 +48,8 @@ function preload() {
     iPlayer1 = loadImage('images/player_char_1.png');
     iPlayer2 = loadImage('images/player_char_2.png');
     fBase = loadFont('fonts/base.ttf');
+    sLightcycle = loadSound('sounds/lightcycle.wav');
+    sCrash = loadSound('sounds/crash.wav');
 }
 
 function setup() {
@@ -65,6 +67,7 @@ function setup() {
     buffer.strokeWeight(20);
     buffer.stroke(0);
     buffer.pixelDensity(1);
+    sLightcycle.setVolume(0.1);
 }
 
 
@@ -78,6 +81,7 @@ function draw() {
     if (isReady1 && isReady2 && !isReadyChecked && !isGameEnd) {
         setTimeout(function () {
             isPlaying = true;
+            sLightcycle.loop();
         }, 2000);
         isReadyChecked = true;
     }
@@ -227,7 +231,7 @@ function draw() {
             if (isReady1 && isReady2 && !isPlaying) {
                 fill(255);
                 textSize(28);
-                text('GAME STARTING...', canvasSize / 2, canvasSize / 2);
+                text('GET READY', canvasSize / 2, canvasSize / 2);
             }
         }
     }
@@ -367,6 +371,8 @@ function saveLine(player) {
 }
 
 function endLevel(losingPlayer) {
+    sLightcycle.stop();
+    sCrash.play();
     console.log('Game Ended');
     isPlaying = false;
     isGameEnd = true;

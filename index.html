@@ -4,6 +4,7 @@
 <head>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.10.0/p5.min.js"></script>
   <script src="background.js"></script>
+  <script src="addons/p5.sound.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Goldman:wght@400;700&family=Orbitron:wght@400..900&display=swap"
@@ -22,7 +23,7 @@
 
     hr {
       width: 70%;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
     }
 
     #title {
@@ -30,7 +31,7 @@
       font-size: 48px;
       font-weight: 700;
       text-align: center;
-      margin: 5px 0px 0px 0px;
+      margin: 15px 0px 0px 0px;
     }
 
     #subtitle {
@@ -38,7 +39,7 @@
       font-size: 18px;
       font-weight: 100;
       text-align: center;
-      margin: 0px 0px 15px 0px;
+      margin: 0px 0px 25px 0px;
     }
 
     #gameContainer {
@@ -119,20 +120,23 @@
   <div id="instructionContainer">
     <div id="lobbyInstruction">
       WASD to move. <br>
-      Select a minigame.
+      Select a minigame by touching an edge.
     </div>
     <div id="cycleInstruction" class="hidden">
       Player 1: WASD to change direction. <br>
       Player 2: IJKL to change direction. <br>
-      Try to destroy your opponent by making them crash into a wall or light trail.
+      Win by making your opponent crash into a wall or light trail.
     </div>
     <div id="tankInstruction" class="hidden">
       Player 1: WASD to move. L Shift to shoot. <br>
       Player 2: IJKL to change direction. Enter to shoot.<br>
-      Destroy your opponent's tank.
+      Destroy your opponent's tank to win!
     </div>
     <div id="coneInstruction" class="hidden">
-      Placeholder.
+      WASD to move. L Click to shoot.<br>
+      Players take turns attempting to make it past a set of <br>
+      moving blocks. Shoot the blocks to break them! Win by <br>
+      outlasting your opponent.
     </div>
   </div>
 
@@ -169,16 +173,19 @@
           //1 - Lightcycle
           cycle.classList.remove('hidden');
           cycleInstruction.classList.remove('hidden');
+          cycleGame.focus();
           break;
         case 1:
           //2 - Tank
           tank.classList.remove('hidden');
           tankInstruction.classList.remove('hidden');
+          tankGame.focus();
           break;
         case 2:
           //3 - Cone
           cone.classList.remove('hidden');
           coneInstruction.classList.remove('hidden');
+          coneGame.focus();
           break;
       }
     }
@@ -203,10 +210,12 @@
         }
         lobby.classList.remove('hidden');
         lobbyInstruction.classList.remove('hidden');
+        lobbyGame.focus();
 
         //Reset Games
         cycleGame.contentWindow.resetGame();
         tankGame.contentWindow.resetGame();
+        coneGame.contentWindow.resetGame();
       }, 2000);
     }
   </script>
