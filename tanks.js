@@ -32,8 +32,8 @@ function setup() {
     tankImg1.resize(40, 40);
     tankImg2.resize(40, 40);
 
-    tank1 = new Tank(35, 250, 4.7, 87, 65, 68, 83, 16, tankImg1, color(255, 0, 0));
-    tank2 = new Tank(465, 250, 4.7, 73, 74, 76, 75, 13, tankImg2, color(0, 255, 0));
+    tank1 = new Tank(35, 250, 4.7, 87, 65, 68, 83, 16, tankImg1, color(176, 229, 255));
+    tank2 = new Tank(465, 250, 4.7, 73, 74, 76, 75, 13, tankImg2, color(255, 241, 176));
 }
 
 function draw() {
@@ -83,8 +83,7 @@ function gamePlay() {
     if (!pause) {
 
         textAlign(CENTER)
-        textSize(20)
-        strokeWeight(5)
+        strokeWeight(6)
         stroke(0)
 
         if (ready1 & ready2){
@@ -93,29 +92,37 @@ function gamePlay() {
                 tank2.update();
             }
             else{
+                fill(255);
+                textSize(45)
                 text("GET READY", width/2, height/2)
             }
             if (countDown <= 0 & countDown >= -100){
+                fill(255);
+                textSize(45)
                 text("GO!", width/2, height/2)
             }
             countDown-=1;
         }
 
         if (!ready1){
-            fill(255)
-            text("PLAYER 1 READY UP", 100, 100)
+            fill(176, 229, 255)
+            textSize(30)
+            text("PLAYER 1 READY UP", width/2, height*.19)
         }
         if (ready1 & countDown >= 0){
-            fill(0,255,0)
-            text("PLAYER 1 READY", 100, 100)
+            fill(22, 128, 0);
+            textSize(30)
+            text("READY", width/2, height*.19)
         }
         if(!ready2 & countDown >= 0){
-            fill(255)
-            text("PLAYER 2 READY UP", 400, 100)
+            fill(255, 241, 176)
+            textSize(30)
+            text("PLAYER 2 READY UP", width/2, height*.72)
         }
         if (ready2 & countDown >= 0){
-            fill(0,255,0)
-            text("PLAYER 2 READY", 400, 100)
+            fill(22, 128, 0);
+            textSize(30)
+            text("READY", width/2, height*.72)
         }
 
         tank1.display();
@@ -137,12 +144,12 @@ function gamePlay() {
 
 function keyPressed(){
     if (!ready1){
-        if (key == 'w'){
+        if (key == 'w' || key == 'a' || key =='s' || key =='d'){
             ready1 = true;
         }
     }
     if(!ready2){
-        if (key == 'i'){
+        if (key == 'i' || key =='j' || key =='k' || key =='l'){
             ready2 = true;
         }
     }
