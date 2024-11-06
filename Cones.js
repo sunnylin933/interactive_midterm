@@ -155,7 +155,7 @@ function drawFallingArea() {
   noStroke();
 }
 
-function handleSegments() {
+function handleSegments() { 
   for (let i = segments.length - 1; i >= 0; i--) {
     let segment = segments[i];
     segment.y += segmentSpeed;
@@ -193,7 +193,7 @@ function handleBullets() {
   }
 }
 
-function spawnSegments() {
+function spawnSegments() {  
   let numSegments = Math.ceil(fallingAreaWidth / segmentWidth);
 
   for (let i = 0; i < numSegments; i++) {
@@ -210,7 +210,7 @@ function spawnSegments() {
   }
 }
 
-function shiftClusters() {
+function shiftClusters() { 
   for (let i = segments.length - 1; i >= 0; i--) {
     segments[i].x += segmentWidth;
 
@@ -222,7 +222,7 @@ function shiftClusters() {
   }
 }
 
-function generateDistinctColor(index, total) {
+function generateDistinctColor(index, total) { // in order to create a random color, AI assistance was used for syntax.
   let hueValue = (index / total) * 360 + random(-30, 30);
   return color(`hsl(${hueValue}, 100%, 50%)`);
 }
@@ -249,7 +249,7 @@ function drawCone() {
 
   for (let i = 0; i < numLayers; i++) {
     let layerWidth = map(i, 0, numLayers - 1, baseWidth, 0);
-    rect(coneX - layerWidth / 2, coneY - i * layerHeight, layerWidth, layerHeight);
+    rect(coneX - layerWidth / 2, coneY - i * layerHeight, layerWidth, layerHeight); 
   }
 
   cone.y += cone.speed;
@@ -286,7 +286,7 @@ function handlePlayerMovement() {
   if(player.y >= 500 - player.size){player.y = 500 - player.size}; 
 }
 
-function mousePressed() {
+function mousePressed() { // in order to create the bullets and how they interacted with the game, AI was used 
   if (isGameActive) {
     let angle = atan2(mouseY - player.y, mouseX - player.x);
     let bullet = {
@@ -301,7 +301,7 @@ function mousePressed() {
 
 }
 
-function checkCollisions() {
+function checkCollisions() { // Collisions assistance was used with AI here. Initially worked, but only when the user was moving 
   // Check for player collision with each segment
   for (let i = segments.length - 1; i >= 0; i--) {
     let segment = segments[i];
@@ -311,7 +311,7 @@ function checkCollisions() {
       player.y + player.size / 3 > segment.y &&
       player.y - player.size / 3 < segment.y + segment.height
     ) {
-      // If player collides with a segment, they lose a life and the turn ends
+      // If a player collides with a segment, they lose a life and the turn ends
       if (activePlayer === 1) {
         player1Lives--;
       } else {
@@ -346,7 +346,7 @@ function checkCollisions() {
 }
 
 
-function checkBulletCollisions(bullet) {
+function checkBulletCollisions(bullet) { // Collisions assistance was used with AI here. Initially worked, but only when the user was moving 
   for (let i = segments.length - 1; i >= 0; i--) {
     let segment = segments[i];
     if (
@@ -367,7 +367,7 @@ function checkBulletCollisions(bullet) {
   }
 }
 
-// Function to create explosion effect
+// To create an explosion effect, AI was used 
 function createExplosion(x, y) {
   for (let i = 0; i < 10; i++) {
     explosions.push({
@@ -381,7 +381,7 @@ function createExplosion(x, y) {
 }
 
 // Function to handle explosions
-function handleExplosions() {
+function handleExplosions() { 
   for (let i = explosions.length - 1; i >= 0; i--) {
     let explosion = explosions[i];
     fill(255, explosion.alpha, 0, explosion.alpha);
