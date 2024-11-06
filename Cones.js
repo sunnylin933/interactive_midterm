@@ -286,7 +286,7 @@ function handlePlayerMovement() {
   if(player.y >= 500 - player.size){player.y = 500 - player.size}; 
 }
 
-function mousePressed() { // in order to create the bullets and how they interacted with the game, AI was used 
+function mousePressed() { // To create the bullets and how they interacted with the game, AI was used 
   if (isGameActive) {
     let angle = atan2(mouseY - player.y, mouseX - player.x);
     let bullet = {
@@ -301,7 +301,7 @@ function mousePressed() { // in order to create the bullets and how they interac
 
 }
 
-function checkCollisions() { // Collisions assistance was used with AI here. Initially worked, but only when the user was moving 
+function checkCollisions() { // Collisions + explosions  was used with AI here. Initially worked, but only when the user was moving 
   // Check for player collision with each segment
   for (let i = segments.length - 1; i >= 0; i--) {
     let segment = segments[i];
